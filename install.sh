@@ -5,6 +5,7 @@
 # This script is designed to install the required components for a
 # Big Data (Teaching and general usage) VM from an existing tar file of
 # the Big Data user directory (see default USER_NAME, our use -u to set)
+# with preinstalled packaged, or from scratch by installing required packages
 #
 # Packages in tar file:
 #
@@ -169,7 +170,7 @@ full_install () {
 
 print_usage () {
   echo ""
-  echo "Usage $0 -[|h] -[f|u|g|t]"
+  echo "Usage $0 -[B|C|T|U|F|h] -[f|u|g|t]: -[Z]"
   echo ""
   echo "-h: Print usage information"
   echo "-T: Install from preconfigured tar file"
