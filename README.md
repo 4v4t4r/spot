@@ -16,6 +16,8 @@ with preinstalled packaged, or from scratch by installing required packages
 Usage
 -----
 
+Get help:
+
 ```
 $ ./install.sh -h
 
@@ -32,4 +34,34 @@ Usage ./install.sh -[B|C|T|U|F|h] -[f|u|g|t]: -[Z]
 -u: Set Username
 -g: Set Usergroup
 -t: Set temporary directory
+```
+
+Install from default tar file:
+
+```
+# ./install.sh -T
+```
+
+Install from a specific tar file:
+
+```
+# ./install.sh -T -f tar.gz
+```
+
+Install base packages:
+
+```
+# ./install.sh -B
+```
+
+Install OpenCV from scratch:
+
+```
+# ./install.sh -C
+```
+
+Install everything from scratch:
+
+```
+# ./install.sh -F
 ```
