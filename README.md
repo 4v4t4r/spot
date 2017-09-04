@@ -46,7 +46,7 @@ Install from default tar file:
 Install from a specific tar file:
 
 ```
-# ./install.sh -T -f tar.gz
+# ./install.sh -T -f user.tar.gz
 ```
 
 Install base packages:
