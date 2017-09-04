@@ -30,6 +30,7 @@ Usage ./install.sh -[B|C|T|U|F|h] -[f|u|g|t]: -[Z]
 -f: Specify tar file (otherwise uses default in script)
 -C: Install OpenCV manually
 -U: Add user
+-V: Print version information
 -Z: Exclude base support package check
 -u: Set Username
 -g: Set Usergroup
