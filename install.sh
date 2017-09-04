@@ -17,6 +17,11 @@
 # joda-time 2.4
 # opencv
 
+# Get running directory and set src directory
+
+BASE_DIR=`dirname $0`
+SRC_DIR="$BASE_DIR/src"
+
 # Set up OpenCV defaults
 
 if [ "$OPENCV_VER" = "" ]; then
@@ -71,16 +76,23 @@ check_base () {
       yum update -y
       yum install ffmpeg ffmpeg-devel -y
     fi
-    for package in unzip sudo cmake wget epel-release bsdtar3 bzip2 java-1.8.0-openjdk gcc-c++ gtk2-devel tesseract-devel yum-utils; do
+    for package in unzip sudo cmake wget epel-release bsdtar3 bzip2 java-1.8.0-openjdk gcc-c++ gtk2-devel tesseract-devel \
+                   yum-utils libavformat-* libtiff-devel libjpeg-devel hdf5-devel python-pip numpy libgphoto2-devel \
+                   libdc1394-devel libv4l-devel gstreamer-plugins-base-devel libpng-devel libjpeg-turbo-devel jasper-devel \
+                   openexr-devel libtiff-devel libwebp-devel; do
       yum install $package -y
     done
+    pip install --upgrade pip
     yum -y groupinstall development
     RHEL_VER=`cat /etc/redhat-release |awk '{print $3}' |cut -f1 -d.`
     sudo yum -y install https://centos$RHEL_VER.iuscommunity.org/ius-release.rpm
     yum -y install python36u python36u-pip python36u-devel
   else
     apt-get update
-    for package in unzip sudo cmake wget bzip2 bsdtar default-jre g++ opencl-1.2 python3 python3-dev libtesseract-dev; do
+    for package in vim unzip sudo cmake wget bzip2 bsdtar default-jre g++ opencl-1.2 python3 python3-dev libtesseract-dev \
+                   libavformat-* libtiff-dev libjpeg-dev libhdf5-dev python-pip libgphoto2-dev python-numpy libgphoto2-dev \
+                   libdc1394-22-dev libv4l-dev gstreamer-plugins-base1.0-dev libpng-dev libjpeg-turbo8-dev libjasper-dev \
+                   libopenexr-dev libtiff-dev libwebp-dev; do
       apt-get install $package -y
     done
     update-alternatives --config java
@@ -143,7 +155,15 @@ install_opencv () {
         tar -xvf $OPENCV_CONTRIB_TAR
       fi
       cd $OPENCV_DIR
-      cmake -DOPENCV_EXTRA_MODULES_PATH=../$OPENCV_CONTRIB_DIR/modules
+      cmake -DWITH_GPHOTO2=OFF -DCMAKE_INSTALL_PREFIX=/usr/local -DOPENCV_EXTRA_MODULES_PATH=../$OPENCV_CONTRIB_DIR/modules
+      if [ -f "/etc/redhat-release" ]; then
+        cp $SRC_DIR/jas_math.h /usr/include/jasper/jas_math.h
+      else
+        echo "find_package(HDF5)" >> modules/python/common.cmake
+        echo "include_directories(\${HDF5_INCLUDE_DIRS})" >> modules/python/common.cmake
+      fi
+      make all
+      make install
     else
       echo "Failed to download $OPENCV_CONTRIB_URL"
     fi
