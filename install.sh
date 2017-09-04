@@ -286,8 +286,8 @@ while getopts BCDTUFZVhf:u:g: args; do
     do_opencv=1
     ;;
   D)
-    do_base_check=0
-    do_opencv=0
+    do_base_check=1
+    do_opencv=1
     do_darknet=1
     ;;
   T)
