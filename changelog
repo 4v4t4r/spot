@@ -8,3 +8,5 @@
 @ Added code to print version information
 # 0.0.5: Mon  4 Sep 2017 22:59:27 AEST
 # Added fann
+# 0.0.6: Tue  5 Sep 2017 00:23:55 AEST
+# Added darknet

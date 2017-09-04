@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.0.5
+# Version:      0.0.6
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -154,7 +154,19 @@ tar_install () {
   fi
 }
 
-# Install OpenCV
+# Function to install darknet
+
+install_darknet () {
+  cd $USER_HOME
+  git clone https://github.com/pjreddie/darknet.git
+  cd darknet
+  sed -i "s/OPENCV=0/OPENCV=1/g" Makefile
+  sed -i "s/-Ofast/-O3 -ffast-math/g" Makefile
+  export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig
+  make
+}
+
+# Function to install OpenCV
 
 install_opencv () {
   cd $TMP_DIR
@@ -192,7 +204,7 @@ install_opencv () {
   fi
 }
 
-# Do a full install
+# Function to do a full install
 
 full_install () {
   install_opencv
@@ -219,6 +231,7 @@ print_usage () {
   echo "-f: Specify tar file (otherwise uses default in script)"
   echo "-C: Install OpenCV manually"
   echo "-U: Add user"
+  echo "-D: Install Darknet"
   echo "-V: Print version information"
   echo "-Z: Exclude base support package check"
   echo "-u: Set Username"
@@ -232,7 +245,15 @@ if [ "$1" = "" ]; then
   exit
 fi
 
-while getopts BCTUFZVhf:u:g: args; do
+exclude_base=0
+do_full_install=0
+do_base_check=0
+do_opencv=0
+do_darknet=0
+do_add_user=0
+do_tar_install=0
+
+while getopts BCDTUFZVhf:u:g: args; do
   case $args in
   Z)
     exclude_base=1
@@ -263,6 +284,11 @@ while getopts BCTUFZVhf:u:g: args; do
     do_full_install=0
     do_base_check=1
     do_opencv=1
+    ;;
+  D)
+    do_base_check=0
+    do_opencv=0
+    do_darknet=1
     ;;
   T)
     do_full_install=0
@@ -309,6 +335,10 @@ fi
 
 if [ "$do_opencv" = 1 ]; then
   install_opencv
+fi
+
+if [ "$do_darknet" = 1 ]; then
+  install_darknet
 fi
 
 if [ "$do_tar_install" = 1 ]; then
