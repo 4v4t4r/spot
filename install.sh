@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.0.6
+# Version:      0.0.8
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -52,9 +52,10 @@ fi
 
 if [ "$SPARK_VER" = "" ]; then
   SPARK_VER="2.2.0"
-  SPARK_URL="https://d3kbcqa49mib13.cloudfront.net/spark-2.2.0-bin-hadoop2.7.tgz"
-  SPARK_TAR="spark-$SPARK_VER-bin-hadoop2.7.tgz"
-  SPARK_DIR="spark-$SPARK_VER-bin-hadoop2.7"
+  HADOOP_VER="2.7"
+  SPARK_URL="http://ftp.mirror.aarnet.edu.au/pub/apache/spark/spark-$SPARK_VER/spark-$SPARC_VER-bin-hadoop$HADOOP_VER.tgz"
+  SPARK_TAR="spark-$SPARK_VER-bin-hadoop$HADOOP_VER.tgz"
+  SPARK_DIR="spark-$SPARK_VER-bin-hadoop$HADOOP_VER"
 fi
 
 # Set up user information (user created for Big Data programs)
