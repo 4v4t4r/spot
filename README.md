@@ -1,4 +1,4 @@
-![alt tag](https://raw.githubusercontent.com/lateralblast/pot/master/pot.jpg)
+![alt tag](https://raw.githubusercontent.com/lateralblast/spot/master/spot.jpg)
 
 SPOT
 ====
