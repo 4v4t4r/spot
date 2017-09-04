@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.0.3
+# Version:      0.0.4
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -16,7 +16,7 @@
 #               Big Data (Teaching and general usage) VM from an existing tar file of
 #               the Big Data user directory (see default USER_NAME, our use -u to set)
 #               with preinstalled packaged, or from scratch by installing required packages
- 
+#
 # Packages in tar file:
 #
 # spark 2.0, 2.1
@@ -26,6 +26,10 @@
 # fann
 # joda-time 2.4
 # opencv
+
+# Get the version of the script from the script itself
+
+script_version=`cd $start_path ; cat $0 | grep '^# Version' |awk '{print $3}'`
 
 # Get running directory and set src directory
 
@@ -215,6 +219,7 @@ print_usage () {
   echo "-f: Specify tar file (otherwise uses default in script)"
   echo "-C: Install OpenCV manually"
   echo "-U: Add user"
+  echo "-V: Print version information"
   echo "-Z: Exclude base support package check"
   echo "-u: Set Username"
   echo "-g: Set Usergroup"
@@ -227,10 +232,14 @@ if [ "$1" = "" ]; then
   exit
 fi
 
-while getopts BCTUFZhf:u:g: args; do
+while getopts BCTUFZVhf:u:g: args; do
   case $args in
   Z)
     exclude_base=1
+    ;;
+  V)
+    echo $script_version
+    exit
     ;;
   f)
     USER_TAR=$OPTARG
