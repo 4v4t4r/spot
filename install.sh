@@ -1,12 +1,22 @@
 #!/bin/bash
 
-# Big Data VM Setup script
-#
-# This script is designed to install the required components for a
-# Big Data (Teaching and general usage) VM from an existing tar file of
-# the Big Data user directory (see default USER_NAME, our use -u to set)
-# with preinstalled packaged, or from scratch by installing required packages
-#
+# Name:         spot
+# Version:      0.0.3
+# Release:      1
+# License:      CC-BA (Creative Commons By Attribution)
+#               http://creativecommons.org/licenses/by/4.0/legalcode
+# Group:        System
+# Source:       N/A
+# URL:          http://lateralblast.com.au/
+# Distribution: Red Hat Linux, Centos Linux, Ubuntu Linux
+# Vendor:       UNIX
+# Packager:     Richard Spindler <richard@lateralblast.com.au>
+# Description:  Big Data VM Setup script
+#               This script is designed to install the required components for a
+#               Big Data (Teaching and general usage) VM from an existing tar file of
+#               the Big Data user directory (see default USER_NAME, our use -u to set)
+#               with preinstalled packaged, or from scratch by installing required packages
+ 
 # Packages in tar file:
 #
 # spark 2.0, 2.1
