@@ -48,6 +48,15 @@ if [ "$OPENCV_VER" = "" ]; then
   OPENCV_CONTRIB_TAR="$OPENCV_CONTRIB_DIR.tar.gz"
 fi
 
+# Set up Spark defaults
+
+if [ "$SPARK_VER" = "" ]; then
+  SPARK_VER="2.2.0"
+  SPARK_URL="https://d3kbcqa49mib13.cloudfront.net/spark-2.2.0-bin-hadoop2.7.tgz"
+  SPARK_TAR="spark-$SPARK_VER-bin-hadoop2.7.tgz"
+  SPARK_DIR="spark-$SPARK_VER-bin-hadoop2.7"
+fi
+
 # Set up user information (user created for Big Data programs)
 
 if [ "$USER_NAME" = "" ]; then
@@ -166,6 +175,24 @@ install_darknet () {
   make
 }
 
+# /function to install Spark
+
+install_spark () {
+  cd $TMP_DIR
+  if [ ! -f "$SPARK_TAR" ]; then
+    echo "Downloading $SPARK_URL to $TMP_DIR/$SPARK_TAR"
+    wget -O $SPARK_TAR $SPARK_URL
+  fi
+  if [ -f "$SPARK_TAR" ]; then
+    if [ ! -d "$SPARK_DIR" ]; then
+      cd $USER_HOME
+      tar -xpzf $TMP_DIR/$SPARK_TAR
+    fi
+  else
+    echo "Failed to download $SPARK_URL"
+  fi
+}
+
 # Function to install OpenCV
 
 install_opencv () {
@@ -222,7 +249,7 @@ full_install () {
 
 print_usage () {
   echo ""
-  echo "Usage $0 -[B|C|T|U|F|h] -[f|u|g|t]: -[Z]"
+  echo "Usage $0 -[B|C|D|S|T|U|F|h] -[f|u|g|t]: -[Z]"
   echo ""
   echo "-h: Print usage information"
   echo "-T: Install from preconfigured tar file"
@@ -232,6 +259,7 @@ print_usage () {
   echo "-C: Install OpenCV manually"
   echo "-U: Add user"
   echo "-D: Install Darknet"
+  echo "-S: Install Spark"
   echo "-V: Print version information"
   echo "-Z: Exclude base support package check"
   echo "-u: Set Username"
@@ -246,14 +274,15 @@ if [ "$1" = "" ]; then
 fi
 
 exclude_base=0
-do_full_install=0
-do_base_check=0
+do_full=0
+do_base=0
 do_opencv=0
 do_darknet=0
-do_add_user=0
-do_tar_install=0
+do_user=0
+do_tar=0
+do_spark=0
 
-while getopts BCDTUFZVhf:u:g: args; do
+while getopts BCDSTUFZVhf:u:g: args; do
   case $args in
   Z)
     exclude_base=1
@@ -275,31 +304,36 @@ while getopts BCDTUFZVhf:u:g: args; do
     USER_GROUP=$OPTARG
     ;;
   B)
-    do_base_check=1
+    do_base=1
     ;;
   U)
-    do_add_user=1
+    do_user=1
     ;;
   C)
-    do_full_install=0
-    do_base_check=1
+    do_full=0
+    do_base=1
     do_opencv=1
     ;;
   D)
-    do_base_check=1
+    do_base=1
     do_opencv=1
     do_darknet=1
     ;;
+  S)
+    do_base=1
+    do_spark=1
+    ;;
   T)
-    do_full_install=0
-    do_base_check=1
-    do_add_user=1
-    do_tar_install=1
+    do_base=1
+    do_user=1
+    do_tar=1
     ;;
   F)
-    do_base_check=1
-    do_add_user=1
-    do_full_install=1
+    do_base=1
+    do_user=1
+    do_opencv=1
+    do_darknet=1
+    do_spark=1
     ;;
   h)
     print_usage
@@ -322,14 +356,14 @@ if [ ! -d "$TMP_DIR" ]; then
 fi
 
 if [ "$exclude_base" = 1 ]; then
-  do_base_check=0
+  do_base=0
 fi
 
-if [ "$do_base_check" = 1 ]; then
+if [ "$do_base" = 1 ]; then
   check_base
 fi
 
-if [ "$do_add_user" = 1 ]; then
+if [ "$do_user" = 1 ]; then
   add_user $USER_NAME
 fi
 
@@ -341,12 +375,16 @@ if [ "$do_darknet" = 1 ]; then
   install_darknet
 fi
 
-if [ "$do_tar_install" = 1 ]; then
+if [ "$do_spark" = 1 ]; then
+  install_spark
+fi
+
+if [ "$do_tar" = 1 ]; then
   tar_install $USER_TAR $USER_NAME
   exit
 fi
 
-if [ "$do_full_install" = 1 ]; then
+if [ "$do_full" = 1 ]; then
   full_install
   exit
 fi

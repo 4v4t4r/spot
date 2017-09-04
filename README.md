@@ -21,7 +21,7 @@ Get help:
 ```
 $ ./install.sh -h
 
-Usage ./install.sh -[B|C|T|U|F|h] -[f|u|g|t]: -[Z]
+Usage ./install.sh -[B|C|D|S|T|U|F|h] -[f|u|g|t]: -[Z]
 
 -h: Print usage information
 -T: Install from preconfigured tar file
@@ -30,6 +30,8 @@ Usage ./install.sh -[B|C|T|U|F|h] -[f|u|g|t]: -[Z]
 -f: Specify tar file (otherwise uses default in script)
 -C: Install OpenCV manually
 -U: Add user
+-D: Install Darknet
+-S: Install Spark
 -V: Print version information
 -Z: Exclude base support package check
 -u: Set Username
