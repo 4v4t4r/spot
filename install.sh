@@ -83,8 +83,14 @@ check_base () {
       yum install $package -y
     done
     pip install --upgrade pip
-    yum -y groupinstall development
+    yum groupinstall development -y
     RHEL_VER=`cat /etc/redhat-release |awk '{print $3}' |cut -f1 -d.`
+    if [ "$RHEL_VER" = "7" ]; then
+      yum  install joda-time -y
+    else
+      rpm -Uvh http://mirror.centos.org/centos/7/os/x86_64/Packages/joda-convert-1.3-5.el7.noarch.rpm
+      rpm -Uvh http://mirror.centos.org/centos/7/os/x86_64/Packages/joda-time-2.2-3.tzdata2013c.el7.noarch.rpm
+    fi
     sudo yum -y install https://centos$RHEL_VER.iuscommunity.org/ius-release.rpm
     yum -y install python36u python36u-pip python36u-devel
   else
@@ -92,7 +98,7 @@ check_base () {
     for package in vim unzip sudo cmake wget bzip2 bsdtar default-jre g++ opencl-1.2 python3 python3-dev libtesseract-dev \
                    libavformat-* libtiff-dev libjpeg-dev libhdf5-dev python-pip libgphoto2-dev python-numpy libgphoto2-dev \
                    libdc1394-22-dev libv4l-dev gstreamer-plugins-base1.0-dev libpng-dev libjpeg-turbo8-dev libjasper-dev \
-                   libopenexr-dev libtiff-dev libwebp-dev; do
+                   libopenexr-dev libtiff-dev libwebp-dev joda-time*; do
       apt-get install $package -y
     done
     update-alternatives --config java
