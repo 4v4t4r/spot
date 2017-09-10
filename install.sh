@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.0.8
+# Version:      0.0.9
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -19,9 +19,9 @@
 #
 # Packages in tar file:
 #
-# spark 2.0, 2.1
+# spark 2.2.0
 # hadoop 2.7.3
-# hbase 1.2.4
+# hbase 1.3.1
 # darknet
 # fann
 # joda-time 2.4
@@ -53,9 +53,27 @@ fi
 if [ "$SPARK_VER" = "" ]; then
   SPARK_VER="2.2.0"
   HADOOP_VER="2.7"
-  SPARK_URL="http://ftp.mirror.aarnet.edu.au/pub/apache/spark/spark-$SPARK_VER/spark-$SPARC_VER-bin-hadoop$HADOOP_VER.tgz"
   SPARK_TAR="spark-$SPARK_VER-bin-hadoop$HADOOP_VER.tgz"
+  SPARK_URL="http://ftp.mirror.aarnet.edu.au/pub/apache/spark/spark-$SPARK_VER/$SPARK_TAR"
   SPARK_DIR="spark-$SPARK_VER-bin-hadoop$HADOOP_VER"
+fi
+
+# Set up HBase defaults
+
+if [ "$HBASE_VER" = "" ]; then
+  HBASE_VER="1.3.1"
+  HBASE_TAR="hbase-$HBASE_VER-bin.tar.gz"
+  HBASE_URL="http://ftp.mirror.aarnet.edu.au/pub/apache/hbase/$HBASE_VER/$HBASE_TAR"
+  HBASE_DIR="hbase-$HBASE_VER"
+fi
+
+# Set up Hadoop defaults
+
+if [ "$HBASE_VER" = "" ]; then
+  HADOOP_VER="1.2.1"
+  HADOOP_TAR="hadoop-$HADOOP_VER-bin.tar.gz"
+  HADOOP_URL="http://ftp.mirror.aarnet.edu.au/pub/apache/hadoop/common/$HADOOP_TAR"
+  HADOOP_DIR="hadoop-$HADOOP_VER"
 fi
 
 # Set up user information (user created for Big Data programs)
@@ -176,22 +194,43 @@ install_darknet () {
   make
 }
 
-# /function to install Spark
+# function to download and install a binary from a URL
 
-install_spark () {
+install_bin_from_url () {
+  bin_url=$1
+  bin_tar=$2
+  bin_dir=$3
   cd $TMP_DIR
-  if [ ! -f "$SPARK_TAR" ]; then
-    echo "Downloading $SPARK_URL to $TMP_DIR/$SPARK_TAR"
-    wget -O $SPARK_TAR $SPARK_URL
+  if [ ! -f "$bin_tar" ]; then
+    echo "Downloading $bin_url to $TMP_DIR/$bin_tar"
+    wget -O $bin_tar $bin_url
   fi
-  if [ -f "$SPARK_TAR" ]; then
-    if [ ! -d "$SPARK_DIR" ]; then
-      cd $USER_HOME
-      tar -xpzf $TMP_DIR/$SPARK_TAR
+  if [ -f "$bin_tar" ]; then
+    cd $USER_HOME
+    if [ ! -d "$bin_dir" ]; then
+      tar -xpzf $TMP_DIR/$bin_tar
     fi
   else
-    echo "Failed to download $SPARK_URL"
+    echo "Failed to download $bin_url"
   fi
+}
+
+# function to install Spark
+
+install_spark () {
+  install_bin_from_url $SPARK_URL $SPARK_TAR $SPARK_DIR
+}
+
+# function to install HBase 
+
+install_hbase () {
+  install_bin_from_url $HBASE_URL $HBASE_TAR $HBASE_DIR
+}
+
+# function to install Hadoop
+
+install_hadoop () {
+  install_bin_from_url $HADOOP_URL $HADOOP_TAR $HADOOP_DIR
 }
 
 # Function to install OpenCV
@@ -261,6 +300,8 @@ print_usage () {
   echo "-U: Add user"
   echo "-D: Install Darknet"
   echo "-S: Install Spark"
+  echo "-E: Install Hadoop"
+  echo "-H: Install HBase"
   echo "-V: Print version information"
   echo "-Z: Exclude base support package check"
   echo "-u: Set Username"
@@ -282,6 +323,8 @@ do_darknet=0
 do_user=0
 do_tar=0
 do_spark=0
+do_hadoop=0
+do_hbase=0
 
 while getopts BCDSTUFZVhf:u:g: args; do
   case $args in
@@ -320,6 +363,14 @@ while getopts BCDSTUFZVhf:u:g: args; do
     do_opencv=1
     do_darknet=1
     ;;
+  E)
+    do_base=1
+    do_hadoop=1
+    ;;
+  H)
+    do_base=1
+    do_hbase=1
+    ;;
   S)
     do_base=1
     do_spark=1
@@ -335,6 +386,8 @@ while getopts BCDSTUFZVhf:u:g: args; do
     do_opencv=1
     do_darknet=1
     do_spark=1
+    do_hadoop=1
+    do_hbase=1
     ;;
   h)
     print_usage
@@ -378,6 +431,14 @@ fi
 
 if [ "$do_spark" = 1 ]; then
   install_spark
+fi
+
+if [ "$do_hadoop" = 1 ]; then
+  install_hadoop
+fi
+
+if [ "$do_hbase" = 1 ]; then
+  install_hbase
 fi
 
 if [ "$do_tar" = 1 ]; then
