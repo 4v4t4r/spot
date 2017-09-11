@@ -19,9 +19,9 @@ Usage
 Get help:
 
 ```
-$ ./install.sh -h
+$ ./install.sh
 
-Usage ./install.sh -[B|C|D|S|T|U|F|h] -[f|u|g|t]: -[Z]
+Usage ./install.sh -[B|C|D|E|H|X|O|S|T|F|U|h] -[f|u|g|t]: -[Z]
 
 -h: Print usage information
 -T: Install from preconfigured tar file
@@ -32,6 +32,10 @@ Usage ./install.sh -[B|C|D|S|T|U|F|h] -[f|u|g|t]: -[Z]
 -U: Add user
 -D: Install Darknet
 -S: Install Spark
+-E: Install Hadoop
+-H: Install HBase
+-X: Install VMware Tools
+-O: Install VirtualBox Guest Additions
 -V: Print version information
 -Z: Exclude base support package check
 -u: Set Username
