@@ -21,7 +21,7 @@ Get help:
 ```
 $ ./install.sh
 
-Usage ./install.sh -[B|C|D|E|H|X|O|S|T|F|U|h] -[f|u|g|t]: -[Z]
+Usage ./install.sh -[B|C|D|E|H|X|O|S|T|F|U|Y|K|h] -[f|u|g|t]: -[Z]
 
 -h: Print usage information
 -T: Install from preconfigured tar file
@@ -35,9 +35,11 @@ Usage ./install.sh -[B|C|D|E|H|X|O|S|T|F|U|h] -[f|u|g|t]: -[Z]
 -E: Install Hadoop
 -H: Install HBase
 -X: Install VMware Tools
+-K: Install pyenv
 -O: Install VirtualBox Guest Additions
 -V: Print version information
 -Z: Exclude base support package check
+-Y: Clean up user home directory permissions
 -u: Set Username
 -g: Set Usergroup
 -t: Set temporary directory
