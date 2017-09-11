@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.1.1
+# Version:      0.1.2
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -115,6 +115,14 @@ if [ "$PYENV_DIR" = "" ]; then
   PYENV_DIR="$USER_HOME/.pyenv"
 fi
 
+if [ "$PYTHON2_VER" = "" ]; then
+  PYTHON2_VER="2.7.13"
+fi
+
+if [ "$PYTHON3_VER" = "" ]; then
+  PYTHON3_VER="3.6.2"
+fi
+
 # Function to clean up user home permissions
 
 clean_up_user_perms () {
@@ -165,7 +173,7 @@ install_pyenv () {
     else
       apt-get install -y gcc gcc-c++ make git patch openssl-dev zlib-dev readline-dev sqlite-dev bzip2-dev
     fi
-    git clone git://github.com/yyuu/pyenv.git $PYENV_DIR
+    su - $USER_NAME -c "git clone git://github.com/yyuu/pyenv.git $PYENV_DIR"
   fi
   pyenv_test=`cat $profile |grep pyenv`
   if [ ! "$pyenv_test" ]; then
@@ -173,6 +181,13 @@ install_pyenv () {
     echo "export PATH="\$HOME/.pyenv/bin:\$PATH"" >> $profile
     echo "eval \"\$(pyenv init -)\"" >> $profile
     echo "" >> $profile
+    chown $USER_NAME:$USER_NAME $profile
+  fi
+  if [ ! -d "$PYENV_DIR/versions/$PYTHON2_VER" ]; then
+    su - $USER_NAME -c "pyenv install $PYTHON2_VER"
+  fi
+  if [ ! -d "$PYENV_DIR/versions/$PYTHON3_VER" ]; then
+    su - $USER_NAME -c "pyenv install $PYTHON3_VER"
   fi
 }
 
