@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.1.0
+# Version:      0.1.1
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -82,27 +82,44 @@ fi
 if [ "$USER_NAME" = "" ]; then
   USER_NAME="user"
 fi
+
 if [ "$USER_GROUP" = "" ]; then
   USER_GROUP=$USER_NAME
 fi
+
 if [ "$USER_BASE" = "" ]; then
   USER_BASE="/home"
 fi
+
 if [ "$USER_HOME" = "" ]; then
   USER_HOME="/home/$USER_NAME"
 fi
+
 if [ "$USER_GCOS" = "" ]; then
   USER_GCOS="Big Data User"
 fi
+
 if [ "$SUDO_GROUP" = "" ]; then
   SUDO_GROUP="wheel"
 fi
+
 if [ "$SUDO_FILE" = "" ]; then
   SUDO_FILE="/etc/sudoers.d/bdvm"
 fi
+
 if [ "$USER_TAR" = "" ]; then
   USER_TAR="/mnt/VMs/Asad/user_snapshot_rs_290817.tar.bz2"
 fi
+
+if [ "$PYENV_DIR" = "" ]; then
+  PYENV_DIR="$USER_HOME/.pyenv"
+fi
+
+# Function to clean up user home permissions
+
+clean_up_user_perms () {
+  chown -R $USER_NAME:$USER_NAME $USER_HOME
+}
 
 # Function to check if we are running in VMware and install tools
 
@@ -136,6 +153,27 @@ install_vbox_tools () {
 install_vm_tools () {
   install_vmware_tools
   install_vbox_tools
+}
+
+# Function to install and setup pyenv
+
+install_pyenv () {
+  profile="$USER_HOME/.bashrc"
+  if [ ! -d "$PYENV_DIR" ]; then
+    if [ -f "/etc/redhat-release" ]; then
+      yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel
+    else
+      apt-get install -y gcc gcc-c++ make git patch openssl-dev zlib-dev readline-dev sqlite-dev bzip2-dev
+    fi
+    git clone git://github.com/yyuu/pyenv.git $PYENV_DIR
+  fi
+  pyenv_test=`cat $profile |grep pyenv`
+  if [ ! "$pyenv_test" ]; then
+    echo "" >> $profile
+    echo "export PATH="\$HOME/.pyenv/bin:\$PATH"" >> $profile
+    echo "eval \"\$(pyenv init -)\"" >> $profile
+    echo "" >> $profile
+  fi
 }
 
 # Function to check we have base packages installed
@@ -325,7 +363,7 @@ full_install () {
 
 print_usage () {
   echo ""
-  echo "Usage $0 -[B|C|D|E|H|X|O|S|T|F|U|h] -[f|u|g|t]: -[Z]"
+  echo "Usage $0 -[B|C|D|E|H|X|O|S|T|F|U|Y|K|h] -[f|u|g|t]: -[Z]"
   echo ""
   echo "-h: Print usage information"
   echo "-T: Install from preconfigured tar file"
@@ -339,9 +377,11 @@ print_usage () {
   echo "-E: Install Hadoop"
   echo "-H: Install HBase"
   echo "-X: Install VMware Tools"
+  echo "-K: Install pyenv"
   echo "-O: Install VirtualBox Guest Additions"
   echo "-V: Print version information"
   echo "-Z: Exclude base support package check"
+  echo "-Y: Clean up user home directory permissions"
   echo "-u: Set Username"
   echo "-g: Set Usergroup"
   echo "-t: Set temporary directory"
@@ -365,6 +405,7 @@ do_hbase=0
 do_vmtools=0
 do_vwtools=0
 do_vbtools=0
+do_pyenv=0
 
 while getopts BCDSTUFZVhf:u:g: args; do
   case $args in
@@ -390,6 +431,10 @@ while getopts BCDSTUFZVhf:u:g: args; do
   B)
     do_base=1
     ;;
+  Y)
+    clean_up_user_perms
+    exit
+    ;;
   U)
     do_user=1
     ;;
@@ -409,6 +454,9 @@ while getopts BCDSTUFZVhf:u:g: args; do
   H)
     do_base=1
     do_hbase=1
+    ;;
+  K)
+    do_pyenv=1
     ;;
   S)
     do_base=1
@@ -436,6 +484,7 @@ while getopts BCDSTUFZVhf:u:g: args; do
     do_hadoop=1
     do_hbase=1
     do_vmtools=1
+    do_pyenv=1
     ;;
   h)
     print_usage
@@ -501,7 +550,14 @@ if [ "$do_vbtools" = 1 ]; then
   install_vbox_tools
 fi
 
+if [ "$do_pyenv" = 1 ]; then
+  install_pyenv
+fi
+
 if [ "$do_tar" = 1 ]; then
   tar_install $USER_TAR $USER_NAME
   exit
 fi
+
+clean_up_user_perms
+

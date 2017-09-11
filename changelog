@@ -18,3 +18,4 @@
 # Added Hadoop and HBase
 # 0.1.0: Mon 11 Sep 2017 10:13:54 AEST
 # Added initial VM guest tools install support
+# 0.1.1: Initial pyenv setup code
