@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.0.9
+# Version:      0.1.0
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -103,6 +103,40 @@ if [ "$USER_TAR" = "" ]; then
   USER_TAR="/mnt/VMs/Asad/user_snapshot_rs_290817.tar.bz2"
 fi
 
+# Function to check if we are running in VMware and install tools
+
+install_vmware_tools () {
+  check_vmware=`lspci | grep -i vmware`
+  if [ ! "$check_vmware" = "" ]; then
+    if [ -f "/etc/redhat-release" ]; then
+      yum install open-vm-tools -y
+    else
+      apt-get install open-vm-tools -y
+    fi
+  fi
+}
+
+# Function to check if we are running in VirtualBox and install tools
+
+install_vbox_tools () {
+  check_vbox=`dmidecode -t system|grep 'Manufacturer\|Product' |grep VirtualBox`
+  if [ ! "$check_vbox" = "" ]; then
+    if [ -f "/etc/redhat-release" ]; then
+      # Need to fix
+      :
+    else
+      apt-get install virtualbox-guest-dkms -y 
+    fi
+  fi
+}
+
+# Function to check if we are running in a VM and install tools
+
+install_vm_tools () {
+  install_vmware_tools
+  install_vbox_tools
+}
+
 # Function to check we have base packages installed
 
 check_base () {
@@ -121,7 +155,7 @@ check_base () {
     for package in unzip sudo cmake wget epel-release bsdtar3 bzip2 java-1.8.0-openjdk gcc-c++ gtk2-devel tesseract-devel \
                    yum-utils libavformat-* libtiff-devel libjpeg-devel hdf5-devel python-pip numpy libgphoto2-devel \
                    libdc1394-devel libv4l-devel gstreamer-plugins-base-devel libpng-devel libjpeg-turbo-devel jasper-devel \
-                   openexr-devel libtiff-devel libwebp-devel fann-devel; do
+                   openexr-devel libtiff-devel libwebp-devel fann-devel dmidecode; do
       yum install $package -y
     done
     pip install --upgrade pip
@@ -140,7 +174,7 @@ check_base () {
     for package in vim unzip sudo cmake wget bzip2 bsdtar default-jre g++ opencl-1.2 python3 python3-dev libtesseract-dev \
                    libavformat-* libtiff-dev libjpeg-dev libhdf5-dev python-pip libgphoto2-dev python-numpy libgphoto2-dev \
                    libdc1394-22-dev libv4l-dev gstreamer-plugins-base1.0-dev libpng-dev libjpeg-turbo8-dev libjasper-dev \
-                   libopenexr-dev libtiff-dev libwebp-dev joda-time* libfann-dev; do
+                   libopenexr-dev libtiff-dev libwebp-dev joda-time* libfann-dev dmidecode; do
       apt-get install $package -y
     done
     update-alternatives --config java
@@ -275,6 +309,7 @@ install_opencv () {
 
 full_install () {
   install_opencv
+  install_hbase
   if [ -f "/etc/redhat-release" ]; then
     for package in ; do
       yum install $package -y
@@ -289,7 +324,7 @@ full_install () {
 
 print_usage () {
   echo ""
-  echo "Usage $0 -[B|C|D|S|T|U|F|h] -[f|u|g|t]: -[Z]"
+  echo "Usage $0 -[B|C|D|E|H|X|O|S|T|F|U|h] -[f|u|g|t]: -[Z]"
   echo ""
   echo "-h: Print usage information"
   echo "-T: Install from preconfigured tar file"
@@ -302,6 +337,8 @@ print_usage () {
   echo "-S: Install Spark"
   echo "-E: Install Hadoop"
   echo "-H: Install HBase"
+  echo "-X: Install VMware Tools"
+  echo "-O: Install VirtualBox Guest Additions"
   echo "-V: Print version information"
   echo "-Z: Exclude base support package check"
   echo "-u: Set Username"
@@ -316,7 +353,6 @@ if [ "$1" = "" ]; then
 fi
 
 exclude_base=0
-do_full=0
 do_base=0
 do_opencv=0
 do_darknet=0
@@ -325,6 +361,9 @@ do_tar=0
 do_spark=0
 do_hadoop=0
 do_hbase=0
+do_vmtools=0
+do_vwtools=0
+do_vbtools=0
 
 while getopts BCDSTUFZVhf:u:g: args; do
   case $args in
@@ -354,7 +393,6 @@ while getopts BCDSTUFZVhf:u:g: args; do
     do_user=1
     ;;
   C)
-    do_full=0
     do_base=1
     do_opencv=1
     ;;
@@ -375,6 +413,14 @@ while getopts BCDSTUFZVhf:u:g: args; do
     do_base=1
     do_spark=1
     ;;
+  X)
+    do_base=1
+    do_vwtools=1
+    ;;
+  O)
+    do_base=1
+    do_vbtools=1
+    ;;
   T)
     do_base=1
     do_user=1
@@ -388,6 +434,7 @@ while getopts BCDSTUFZVhf:u:g: args; do
     do_spark=1
     do_hadoop=1
     do_hbase=1
+    do_vmtools=1
     ;;
   h)
     print_usage
@@ -441,12 +488,19 @@ if [ "$do_hbase" = 1 ]; then
   install_hbase
 fi
 
-if [ "$do_tar" = 1 ]; then
-  tar_install $USER_TAR $USER_NAME
-  exit
+if [ "$do_vmtools" = 1 ]; then
+  install_vm_tools
 fi
 
-if [ "$do_full" = 1 ]; then
-  full_install
+if [ "$do_vwtools" = 1 ]; then
+  install_vmware_tools
+fi
+
+if [ "$do_vbtools" = 1 ]; then
+  install_vbox_tools
+fi
+
+if [ "$do_tar" = 1 ]; then
+  tar_install $USER_TAR $USER_NAME
   exit
 fi

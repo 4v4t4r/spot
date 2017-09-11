@@ -16,3 +16,5 @@
 # Fixed Spark URL
 # 0.0.9: Sun 10 Sep 2017 17:12:56 AEST
 # Added Hadoop and HBase
+# 0.1.0: Mon 11 Sep 2017 10:13:54 AEST
+# Added initial VM guest tools install support
