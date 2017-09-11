@@ -407,7 +407,7 @@ do_vwtools=0
 do_vbtools=0
 do_pyenv=0
 
-while getopts BCDSTUFZVhf:u:g: args; do
+while getopts BCDEHXOSTFUYKhf:u:g: args; do
   case $args in
   Z)
     exclude_base=1
