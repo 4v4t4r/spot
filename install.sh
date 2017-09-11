@@ -29,6 +29,7 @@
 
 # Get the version of the script from the script itself
 
+start_path=`pwd`
 script_version=`cd $start_path ; cat $0 | grep '^# Version' |awk '{print $3}'`
 
 # Get running directory and set src directory
