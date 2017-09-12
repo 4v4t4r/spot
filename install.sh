@@ -138,6 +138,7 @@ fi
 # Function to clean up user home permissions
 
 clean_up_user_perms () {
+  add_user $USER_NAME
   chown -R $USER_NAME:$USER_NAME $USER_HOME
 }
 
@@ -407,7 +408,7 @@ full_install () {
 
 print_usage () {
   echo ""
-  echo "Usage $0 -[B|C|D|E|H|X|O|S|T|F|U|Y|K|h] -[f|u|g|t]: -[Z]"
+  echo "Usage $0 -[B|C|D|E|H|X|O|S|T|F|U|Y|K|h|v] -[f|u|g|t]: -[Z]"
   echo ""
   echo "-h: Print usage information"
   echo "-T: Install from preconfigured tar file"
