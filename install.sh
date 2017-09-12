@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.2.1
+# Version:      0.2.2
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -478,6 +478,11 @@ install_opencv () {
       fi
       make all
       sudo make install
+      if [ -f "/usr/local/share/OpenCV/3rdparty/lib/libippicv.a" ]; then
+        if [ ! -e "/usr/local/lib/libippicv.a" ]; then
+          ln -s /usr/local/share/OpenCV/3rdparty/lib/libippicv.a /usr/local/lib/libippicv.a
+        fi
+      fi
     else
       echo "Failed to download $OPENCV_CONTRIB_URL"
     fi

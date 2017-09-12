@@ -40,3 +40,5 @@
 # Improved SBT check
 # 0.2.1: Tue 12 Sep 2017 14:54:26 AEST
 # Updated OpenCV compilation
+# 0.2.2: Tue 12 Sep 2017 15:41:21 AEST
+# Fixes for darknet
