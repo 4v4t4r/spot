@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.1.8
+# Version:      0.1.9
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -161,6 +161,23 @@ else
   PKG_BIN="apt-get"
 fi
 
+# Tar check
+
+if [ -f "/.dockerenv" ]; then
+  if [ -f "/etc/redhat-release" ]; then
+    TAR_BIN=`which bsdtar3`
+    if [ ! "$TAR_BIN" ]; then
+      sudo yum install bsdtar3 -y
+    fi
+  else
+    TAR_BIN=`which bsdtar`
+    if [ ! "$TAR_BIN" ]; then
+      sudo apt-get install bsdtar -y
+    fi
+  fi
+else
+  TAR_BIN=`which tar`
+fi
 # Function to install sbt
 
 install_sbt () {
@@ -313,7 +330,7 @@ check_base () {
       sudo yum update -y
       sudo yum install ffmpeg ffmpeg-devel -y
     fi
-    for package in unzip sudo cmake wget epel-release bsdtar3 bzip2 java-1.8.0-openjdk gcc-c++ gtk2-devel tesseract-devel \
+    for package in unzip sudo cmake wget epel-release bzip2 java-1.8.0-openjdk gcc-c++ gtk2-devel tesseract-devel \
                    yum-utils libavformat-* libtiff-devel libjpeg-devel hdf5-devel python-pip numpy libgphoto2-devel \
                    libdc1394-devel libv4l-devel gstreamer-plugins-base-devel libpng-devel libjpeg-turbo-devel jasper-devel \
                    openexr-devel libtiff-devel libwebp-devel fann-devel dmidecode; do
@@ -332,22 +349,13 @@ check_base () {
     sudo yum -y install python36u python36u-pip python36u-devel
   else
     sudo apt-get update
-    for package in vim unzip sudo cmake wget bzip2 bsdtar default-jre g++ opencl-1.2 python3 python3-dev libtesseract-dev \
+    for package in vim unzip sudo cmake wget bzip2 default-jre g++ opencl-1.2 python3 python3-dev libtesseract-dev \
                    libavformat-* libtiff-dev libjpeg-dev libhdf5-dev python-pip libgphoto2-dev python-numpy libgphoto2-dev \
                    libdc1394-22-dev libv4l-dev gstreamer-plugins-base1.0-dev libpng-dev libjpeg-turbo8-dev libjasper-dev \
                    libopenexr-dev libtiff-dev libwebp-dev joda-time* libfann-dev dmidecode apt-transport-https; do
       sudo apt-get install $package -y
     done
     update-alternatives --config java
-  fi
-  if [ -f "/.dockerenv" ]; then
-    if [ -f "/etc/redhat-release" ]; then
-      TAR_BIN=`which bsdtar3`
-    else
-      TAR_BIN=`which bsdtar`
-    fi
-  else
-    TAR_BIN=`which tar`
   fi
 }
 

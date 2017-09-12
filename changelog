@@ -34,3 +34,5 @@
 # Added hive
 # 0.1.8: Tue 12 Sep 2017 13:13:23 AEST
 # Fixed base check
+# 0.1.9: Tue Sep 12 03:21:56 UTC 2017
+# Improved bsdtar check
