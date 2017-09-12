@@ -32,3 +32,5 @@
 # Added docker check for lightning-viz
 # 0.1.7: Tue 12 Sep 2017 12:50:58 AEST
 # Added hive
+# 0.1.8: Tue 12 Sep 2017 13:13:23 AEST
+# Fixed base check

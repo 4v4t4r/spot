@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.1.7
+# Version:      0.1.8
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -90,7 +90,7 @@ fi
 if [ "$HIVE_VER" = "" ]; then
   HIVE_VER="2.3.0"
   HIVE_TAR="apache-hive-$HIVE_VER-bin.tar.gz"
-  HIVE_URL="http://ftp.mirror.aarnet.edu.au/pub/hive/hive-$HIVE_VER/$HIVE_TAR"
+  HIVE_URL="http://ftp.mirror.aarnet.edu.au/pub/apache/hive/hive-$HIVE_VER/$HIVE_TAR"
   HIVE_DIR="hive-$HIVE_VER"
 fi
 
@@ -520,7 +520,6 @@ if [ "$1" = "" ]; then
   exit
 fi
 
-exclude_base=0
 do_base=0
 do_opencv=0
 do_darknet=0
@@ -539,10 +538,10 @@ do_maven=0
 do_lightning=0
 do_hive=0
 
-while getopts BCDEHGLXMOQRSTFUYKhf:u:g: args; do
+while getopts BCDEHGLXMOQRSTFUYZKhf:u:g: args; do
   case $args in
   Z)
-    exclude_base=1
+    do_base=0
     ;;
   V)
     echo $script_version
@@ -571,64 +570,50 @@ while getopts BCDEHGLXMOQRSTFUYKhf:u:g: args; do
     do_user=1
     ;;
   L)
-    do_user=1
     do_lightning=1
     ;;
   C)
-    do_base=1
     do_opencv=1
     ;;
   R)
-    do_base=1
     do_sbt=1
     ;;
   M)
-    do_base=1
     do_maven=1
     ;;
   G)
-    do_base=1
     do_hive=1
     ;;
   D)
-    do_base=1
     do_opencv=1
     do_darknet=1
     ;;
   Q)
-    do_base=1
     do_scala=1
     ;;
   E)
-    do_base=1
     do_hadoop=1
     ;;
   H)
-    do_base=1
     do_hbase=1
     ;;
   K)
     do_pyenv=1
     ;;
   S)
-    do_base=1
     do_spark=1
     ;;
   X)
-    do_base=1
     do_vwtools=1
     ;;
   O)
-    do_base=1
     do_vbtools=1
     ;;
   T)
-    do_base=1
     do_user=1
     do_tar=1
     ;;
   F)
-    do_base=1
     do_user=1
     do_opencv=1
     do_darknet=1
@@ -677,10 +662,6 @@ fi
 
 if [ "$do_base" = 1 ]; then
   check_base
-fi
-
-if [ "$exclude_base" = 1 ]; then
-  do_base=0
 fi
 
 if [ "$do_opencv" = 1 ]; then
