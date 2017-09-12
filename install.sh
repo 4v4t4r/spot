@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.1.2
+# Version:      0.1.3
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -17,15 +17,16 @@
 #               the Big Data user directory (see default USER_NAME, our use -u to set)
 #               with preinstalled packaged, or from scratch by installing required packages
 #
-# Packages in tar file:
+# Packages:
 #
-# spark 2.2.0
-# hadoop 2.7.3
-# hbase 1.3.1
+# spark
+# hadoop
+# hbase
 # darknet
 # fann
-# joda-time 2.4
-# opencv
+# joda-time
+# opencv 
+# scala
 
 # Get the version of the script from the script itself
 
@@ -123,6 +124,17 @@ if [ "$PYTHON3_VER" = "" ]; then
   PYTHON3_VER="3.6.2"
 fi
 
+if [ "$SCALA_VER" = "" ]; then
+  SCALA_VER="2.12.3"
+  if [ -f "/etc/redhat-release" ]; then
+    SCALA_PKG="scala-$SCALA_VER.rpm"
+    SCALA_URL="https://downloads.lightbend.com/scala/$SCALA_VER/$SCALA_PKG"
+  else
+    SCALA_PKG="scala-$SCALA_VER.deb"
+    SCALA_URL="https://downloads.lightbend.com/scala/$SCALA_VER/$SCALA_PKG"
+  fi
+fi
+
 # Function to clean up user home permissions
 
 clean_up_user_perms () {
@@ -161,6 +173,23 @@ install_vbox_tools () {
 install_vm_tools () {
   install_vmware_tools
   install_vbox_tools
+}
+
+# Function to install scala
+
+install_scala () {
+  cd $TMP_DIR
+  scala_test=`which scala`
+  if [ ! "$scala_test" ]; then
+    if [ ! -f "$SCALA_PKG" ]; then
+      wget -O $SCALA_PKG $SCALA_URL
+    fi
+    if [ -f "/etc/redhat-release" ]; then
+      rpm -Uvh $SCALA_PKG
+    else
+      dpkg -i $SCALA_PKG
+    fi
+  fi
 }
 
 # Function to install and setup pyenv
@@ -393,6 +422,7 @@ print_usage () {
   echo "-H: Install HBase"
   echo "-X: Install VMware Tools"
   echo "-K: Install pyenv"
+  echo "-Q: Install Scala"
   echo "-O: Install VirtualBox Guest Additions"
   echo "-V: Print version information"
   echo "-Z: Exclude base support package check"
@@ -421,8 +451,9 @@ do_vmtools=0
 do_vwtools=0
 do_vbtools=0
 do_pyenv=0
+do_scala=0
 
-while getopts BCDEHXOSTFUYKhf:u:g: args; do
+while getopts BCDEHXOQSTFUYKhf:u:g: args; do
   case $args in
   Z)
     exclude_base=1
@@ -461,6 +492,10 @@ while getopts BCDEHXOSTFUYKhf:u:g: args; do
     do_base=1
     do_opencv=1
     do_darknet=1
+    ;;
+  Q)
+    do_base=1
+    do_scala=1
     ;;
   E)
     do_base=1
@@ -567,6 +602,10 @@ fi
 
 if [ "$do_pyenv" = 1 ]; then
   install_pyenv
+fi
+
+if [ "$do_scala" = 1 ]; then
+  install_scala
 fi
 
 if [ "$do_tar" = 1 ]; then
