@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.1.4
+# Version:      0.1.5
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -27,6 +27,13 @@
 # joda-time
 # opencv 
 # scala
+# sbt
+# maven
+# hive
+# pyenv
+# python2,3
+# docker
+# lightning-viz docker image
 
 # Get the version of the script from the script itself
 
@@ -135,6 +142,14 @@ if [ "$SCALA_VER" = "" ]; then
   fi
 fi
 
+# Set up package installer
+
+if [ -f "/etc/redhat-release" ]; then
+  PKG_BIN="rpm"
+else
+  PKG_BIN="apt-get"
+fi
+
 # Function to install sbt
 
 install_sbt () {
@@ -207,6 +222,20 @@ install_scala () {
   fi
 }
 
+# Function to install maven
+
+install_maven () {
+  if [ -f "/etc/redhat-release" ]; then
+    if [ ! -f "/etc/yum.repos.d/epel-apache-maven.repo" ]; then
+      sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
+      sudo yum update -y
+    fi
+    yum install apache-maven -y
+  else
+    sudo apt-get install maven -y
+  fi
+}
+
 # Function to install and setup pyenv
 
 install_pyenv () {
@@ -235,6 +264,13 @@ install_pyenv () {
   fi
 }
 
+# Function to install lighting
+
+install_lightning () {
+  $PKG_BIN install npm -y
+  npm install -g lighting-server
+}
+
 # Function to check we have base packages installed
 
 check_base () {
@@ -253,7 +289,7 @@ check_base () {
     for package in unzip sudo cmake wget epel-release bsdtar3 bzip2 java-1.8.0-openjdk gcc-c++ gtk2-devel tesseract-devel \
                    yum-utils libavformat-* libtiff-devel libjpeg-devel hdf5-devel python-pip numpy libgphoto2-devel \
                    libdc1394-devel libv4l-devel gstreamer-plugins-base-devel libpng-devel libjpeg-turbo-devel jasper-devel \
-                   openexr-devel libtiff-devel libwebp-devel fann-devel dmidecode; do
+                   openexr-devel libtiff-devel libwebp-devel fann-devel dmidecode docker; do
       sudo yum install $package -y
     done
     sudo pip install --upgrade pip
@@ -272,7 +308,7 @@ check_base () {
     for package in vim unzip sudo cmake wget bzip2 bsdtar default-jre g++ opencl-1.2 python3 python3-dev libtesseract-dev \
                    libavformat-* libtiff-dev libjpeg-dev libhdf5-dev python-pip libgphoto2-dev python-numpy libgphoto2-dev \
                    libdc1394-22-dev libv4l-dev gstreamer-plugins-base1.0-dev libpng-dev libjpeg-turbo8-dev libjasper-dev \
-                   libopenexr-dev libtiff-dev libwebp-dev joda-time* libfann-dev dmidecode apt-transport-https; do
+                   libopenexr-dev libtiff-dev libwebp-dev joda-time* libfann-dev dmidecode apt-transport-https docker; do
       sudo apt-get install $package -y
     done
     update-alternatives --config java
@@ -422,7 +458,7 @@ full_install () {
 
 print_usage () {
   echo ""
-  echo "Usage $0 -[B|C|D|E|H|X|O|S|T|F|U|Y|K|h|v] -[f|u|g|t]: -[Z]"
+  echo "Usage $0 -[B|C|D|E|H|L|X|M|O|Q|R|S|T|F|U|Y|K|h|v] -[f|u|g|t]: -[Z]"
   echo ""
   echo "-h: Print usage information"
   echo "-T: Install from preconfigured tar file"
@@ -437,6 +473,8 @@ print_usage () {
   echo "-H: Install HBase"
   echo "-X: Install VMware Tools"
   echo "-K: Install pyenv"
+  echo "-L: Install Lightning-viz"
+  echo "-M: Install Maven"
   echo "-Q: Install Scala"
   echo "-R: Install SBT"
   echo "-O: Install VirtualBox Guest Additions"
@@ -469,8 +507,10 @@ do_vbtools=0
 do_pyenv=0
 do_scala=0
 do_sbt=0
+do_maven=0
+do_lightning=0
 
-while getopts BCDEHXOQRSTFUYKhf:u:g: args; do
+while getopts BCDEHLXMOQRSTFUYKhf:u:g: args; do
   case $args in
   Z)
     exclude_base=1
@@ -501,6 +541,10 @@ while getopts BCDEHXOQRSTFUYKhf:u:g: args; do
   U)
     do_user=1
     ;;
+  L)
+    do_user=1
+    do_lightning=1
+    ;;
   C)
     do_base=1
     do_opencv=1
@@ -508,6 +552,10 @@ while getopts BCDEHXOQRSTFUYKhf:u:g: args; do
   R)
     do_base=1
     do_sbt=1
+    ;;
+  M)
+    do_base=1
+    do_maven=1
     ;;
   D)
     do_base=1
@@ -579,16 +627,22 @@ if [ ! -d "$TMP_DIR" ]; then
   mkdir -p $TMP_DIR
 fi
 
-if [ "$exclude_base" = 1 ]; then
-  do_base=0
+# Make sure user exists
+
+if [ ! -d "$USER_HOME" ]; then
+  add_user $USER_NAME
+else
+  if [ "$do_user" = 1 ]; then
+    add_user $USER_NAME
+  fi
 fi
 
 if [ "$do_base" = 1 ]; then
   check_base
 fi
 
-if [ "$do_user" = 1 ]; then
-  add_user $USER_NAME
+if [ "$exclude_base" = 1 ]; then
+  do_base=0
 fi
 
 if [ "$do_opencv" = 1 ]; then
@@ -633,6 +687,14 @@ fi
 
 if [ "$do_sbt" = 1 ]; then
   install_sbt
+fi
+
+if [ "$do_maven" = 1 ]; then
+  install_maven
+fi
+
+if [ "do_lightning" = 1 ]; then
+  install_lightning
 fi
 
 if [ "$do_tar" = 1 ]; then

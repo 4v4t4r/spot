@@ -26,3 +26,5 @@
 # Added code to install scala
 # 0.1.4: Tue 12 Sep 2017 11:36:49 AEST
 # Added code to install sbt
+# 0.1.5: Tue 12 Sep 2017 12:14:13 AEST
+# Added lightning-viz and maven
