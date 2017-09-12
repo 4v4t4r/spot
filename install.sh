@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.1.3
+# Version:      0.1.4
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -135,11 +135,25 @@ if [ "$SCALA_VER" = "" ]; then
   fi
 fi
 
+# Function to install sbt
+
+install_sbt () {
+  if [ -f "/etc/redhat-release" ]; then
+    curl https://bintray.com/sbt/rpm/rpm | sudo tee /etc/yum.repos.d/bintray-sbt-rpm.repo
+    sudo yum install sbt -y
+  else
+    echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
+    sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
+    sudo apt-get update
+    sudo apt-get install sbt -y
+  fi
+}
+
 # Function to clean up user home permissions
 
 clean_up_user_perms () {
-  add_user $USER_NAME
-  chown -R $USER_NAME:$USER_NAME $USER_HOME
+  sudo add_user $USER_NAME
+  sudo chown -R $USER_NAME:$USER_NAME $USER_HOME
 }
 
 # Function to check if we are running in VMware and install tools
@@ -164,7 +178,7 @@ install_vbox_tools () {
       # Need to fix
       :
     else
-      apt-get install virtualbox-guest-dkms -y 
+      sudo apt-get install virtualbox-guest-dkms -y 
     fi
   fi
 }
@@ -186,9 +200,9 @@ install_scala () {
       wget -O $SCALA_PKG $SCALA_URL
     fi
     if [ -f "/etc/redhat-release" ]; then
-      rpm -Uvh $SCALA_PKG
+      sudo rpm -Uvh $SCALA_PKG
     else
-      dpkg -i $SCALA_PKG
+      sudo dpkg -i $SCALA_PKG
     fi
   fi
 }
@@ -199,9 +213,9 @@ install_pyenv () {
   profile="$USER_HOME/.bashrc"
   if [ ! -d "$PYENV_DIR" ]; then
     if [ -f "/etc/redhat-release" ]; then
-      yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel
+      sudo yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel
     else
-      apt-get install -y gcc gcc-c++ make git patch openssl-dev zlib-dev readline-dev sqlite-dev bzip2-dev
+      sudo apt-get install -y gcc gcc-c++ make git patch openssl-dev zlib-dev readline-dev sqlite-dev bzip2-dev
     fi
     su - $USER_NAME -c "git clone git://github.com/yyuu/pyenv.git $PYENV_DIR"
   fi
@@ -211,7 +225,7 @@ install_pyenv () {
     echo "export PATH="\$HOME/.pyenv/bin:\$PATH"" >> $profile
     echo "eval \"\$(pyenv init -)\"" >> $profile
     echo "" >> $profile
-    chown $USER_NAME:$USER_NAME $profile
+    sudo chown $USER_NAME:$USER_NAME $profile
   fi
   if [ ! -d "$PYENV_DIR/versions/$PYTHON2_VER" ]; then
     su - $USER_NAME -c "pyenv install $PYTHON2_VER"
@@ -226,40 +240,40 @@ install_pyenv () {
 check_base () {
   if [ -f "/etc/redhat-release" ]; then
     if [ ! -f "/etc/yum.repos.d/atrpms.repo" ]; then
-      rpm --import http://packages.atrpms.net/RPM-GPG-KEY.atrpms
-      echo "[atrpms]" > /etc/yum.repos.d/atrpms.repo
-      echo "name=Fedora Core \$releasever - \$basearch - ATrpms" >> /etc/yum.repos.d/atrpms.repo
-      echo "baseurl=http://dl.atrpms.net/el\$releasever-\$basearch/atrpms/stable" >> /etc/yum.repos.d/atrpms.repo
-      echo "gpgkey=http://ATrpms.net/RPM-GPG-KEY.atrpms" >> /etc/yum.repos.d/atrpms.repo
-      echo "gpgcheck=1" >> /etc/yum.repos.d/atrpms.repo
-      echo "enabled=1" >> /etc/yum.repos.d/atrpms.repo
-      yum update -y
-      yum install ffmpeg ffmpeg-devel -y
+      sudo rpm --import http://packages.atrpms.net/RPM-GPG-KEY.atrpms
+      sudo echo "[atrpms]" > /etc/yum.repos.d/atrpms.repo
+      sudo echo "name=Fedora Core \$releasever - \$basearch - ATrpms" >> /etc/yum.repos.d/atrpms.repo
+      sudo echo "baseurl=http://dl.atrpms.net/el\$releasever-\$basearch/atrpms/stable" >> /etc/yum.repos.d/atrpms.repo
+      sudo echo "gpgkey=http://ATrpms.net/RPM-GPG-KEY.atrpms" >> /etc/yum.repos.d/atrpms.repo
+      sudo echo "gpgcheck=1" >> /etc/yum.repos.d/atrpms.repo
+      sudo echo "enabled=1" >> /etc/yum.repos.d/atrpms.repo
+      sudo yum update -y
+      sudo yum install ffmpeg ffmpeg-devel -y
     fi
     for package in unzip sudo cmake wget epel-release bsdtar3 bzip2 java-1.8.0-openjdk gcc-c++ gtk2-devel tesseract-devel \
                    yum-utils libavformat-* libtiff-devel libjpeg-devel hdf5-devel python-pip numpy libgphoto2-devel \
                    libdc1394-devel libv4l-devel gstreamer-plugins-base-devel libpng-devel libjpeg-turbo-devel jasper-devel \
                    openexr-devel libtiff-devel libwebp-devel fann-devel dmidecode; do
-      yum install $package -y
+      sudo yum install $package -y
     done
-    pip install --upgrade pip
+    sudo pip install --upgrade pip
     yum groupinstall development -y
     RHEL_VER=`cat /etc/redhat-release |awk '{print $3}' |cut -f1 -d.`
     if [ "$RHEL_VER" = "7" ]; then
-      yum  install joda-time -y
+      sudo yum  install joda-time -y
     else
-      rpm -Uvh http://mirror.centos.org/centos/7/os/x86_64/Packages/joda-convert-1.3-5.el7.noarch.rpm
-      rpm -Uvh http://mirror.centos.org/centos/7/os/x86_64/Packages/joda-time-2.2-3.tzdata2013c.el7.noarch.rpm
+      sudo rpm -Uvh http://mirror.centos.org/centos/7/os/x86_64/Packages/joda-convert-1.3-5.el7.noarch.rpm
+      sudo rpm -Uvh http://mirror.centos.org/centos/7/os/x86_64/Packages/joda-time-2.2-3.tzdata2013c.el7.noarch.rpm
     fi
     sudo yum -y install https://centos$RHEL_VER.iuscommunity.org/ius-release.rpm
-    yum -y install python36u python36u-pip python36u-devel
+    sudo yum -y install python36u python36u-pip python36u-devel
   else
-    apt-get update
+    sudo apt-get update
     for package in vim unzip sudo cmake wget bzip2 bsdtar default-jre g++ opencl-1.2 python3 python3-dev libtesseract-dev \
                    libavformat-* libtiff-dev libjpeg-dev libhdf5-dev python-pip libgphoto2-dev python-numpy libgphoto2-dev \
                    libdc1394-22-dev libv4l-dev gstreamer-plugins-base1.0-dev libpng-dev libjpeg-turbo8-dev libjasper-dev \
-                   libopenexr-dev libtiff-dev libwebp-dev joda-time* libfann-dev dmidecode; do
-      apt-get install $package -y
+                   libopenexr-dev libtiff-dev libwebp-dev joda-time* libfann-dev dmidecode apt-transport-https; do
+      sudo apt-get install $package -y
     done
     update-alternatives --config java
   fi
@@ -279,9 +293,9 @@ check_base () {
 add_user () {
   USER_NAME=$1
   USER_HOME=$USER_BASE/$USER_NAME
-  groupadd $SUDO_GROUP
-  useradd -c "$USER_GCOS" -G $SUDO_GROUP -d $USER_HOME -m $USER_NAME
-  echo "%wheel	ALL=(ALL)	NOPASSWD: ALL" > $SUDO_FILE
+  sudo groupadd $SUDO_GROUP
+  sudo useradd -c "$USER_GCOS" -G $SUDO_GROUP -d $USER_HOME -m $USER_NAME
+  sudo echo "%wheel	ALL=(ALL)	NOPASSWD: ALL" > $SUDO_FILE
 }
 
 # Function to install from tar ball
@@ -293,7 +307,7 @@ tar_install () {
   cd $USER_HOME
   if [ -f "$USER_TAR" ]; then
     $TAR_BIN -xpjf $USER_TAR
-    chown -R $USER_NAME:$USER_GROUP $USER_HOME
+    sudo chown -R $USER_NAME:$USER_GROUP $USER_HOME
   else
     echo "Tar file $USER_TAR does not exist"
     exit
@@ -380,7 +394,7 @@ install_opencv () {
         echo "include_directories(\${HDF5_INCLUDE_DIRS})" >> modules/python/common.cmake
       fi
       make all
-      make install
+      sudo make install
     else
       echo "Failed to download $OPENCV_CONTRIB_URL"
     fi
@@ -396,12 +410,12 @@ full_install () {
   install_hbase
   if [ -f "/etc/redhat-release" ]; then
     for package in ; do
-      yum install $package -y
+      sudo yum install $package -y
     done
   else
-    apt-get update
+    sudo apt-get update
     for package in ; do
-      apt-get install $package -y
+      sudo apt-get install $package -y
     done
   fi
 }
@@ -424,6 +438,7 @@ print_usage () {
   echo "-X: Install VMware Tools"
   echo "-K: Install pyenv"
   echo "-Q: Install Scala"
+  echo "-R: Install SBT"
   echo "-O: Install VirtualBox Guest Additions"
   echo "-V: Print version information"
   echo "-Z: Exclude base support package check"
@@ -453,8 +468,9 @@ do_vwtools=0
 do_vbtools=0
 do_pyenv=0
 do_scala=0
+do_sbt=0
 
-while getopts BCDEHXOQSTFUYKhf:u:g: args; do
+while getopts BCDEHXOQRSTFUYKhf:u:g: args; do
   case $args in
   Z)
     exclude_base=1
@@ -488,6 +504,10 @@ while getopts BCDEHXOQSTFUYKhf:u:g: args; do
   C)
     do_base=1
     do_opencv=1
+    ;;
+  R)
+    do_base=1
+    do_sbt=1
     ;;
   D)
     do_base=1
@@ -536,6 +556,8 @@ while getopts BCDEHXOQSTFUYKhf:u:g: args; do
     do_hbase=1
     do_vmtools=1
     do_pyenv=1
+    do_scala=1
+    do_sbt=1
     ;;
   h)
     print_usage
@@ -607,6 +629,10 @@ fi
 
 if [ "$do_scala" = 1 ]; then
   install_scala
+fi
+
+if [ "$do_sbt" = 1 ]; then
+  install_sbt
 fi
 
 if [ "$do_tar" = 1 ]; then

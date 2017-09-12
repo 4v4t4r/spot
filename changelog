@@ -24,3 +24,5 @@
 # Updated pyenv setup code
 # 0.1.3: Tue 12 Sep 2017 11:00:36 AEST
 # Added code to install scala
+# 0.1.4: Tue 12 Sep 2017 11:36:49 AEST
+# Added code to install sbt

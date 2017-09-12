@@ -37,6 +37,7 @@ Usage ./install.sh -[B|C|D|E|H|X|O|S|T|F|U|Y|K|h] -[f|u|g|t]: -[Z]
 -X: Install VMware Tools
 -K: Install pyenv
 -Q: Install Scala
+-R: Install SBT
 -O: Install VirtualBox Guest Additions
 -V: Print version information
 -Z: Exclude base support package check
