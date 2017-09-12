@@ -317,7 +317,7 @@ install_lightning () {
   if [ ! -f "/.dockerenv" ]; then
     $PKG_BIN install docker -y
     $PKG_BIN install npm -y
-    npm install -g lighting-server
+    sudo npm install -g lighting-server
   fi
 }
 
