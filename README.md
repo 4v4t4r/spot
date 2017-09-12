@@ -34,8 +34,11 @@ Usage ./install.sh -[B|C|D|E|H|X|O|S|T|F|U|Y|K|h] -[f|u|g|t]: -[Z]
 -S: Install Spark
 -E: Install Hadoop
 -H: Install HBase
+-G: Install Hive
 -X: Install VMware Tools
 -K: Install pyenv
+-L: Install Lightning-viz
+-M: Install Maven
 -Q: Install Scala
 -R: Install SBT
 -O: Install VirtualBox Guest Additions

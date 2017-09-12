@@ -30,3 +30,5 @@
 # Added lightning-viz and maven
 # 0.1.6: Tue 12 Sep 2017 12:26:19 AEST
 # Added docker check for lightning-viz
+# 0.1.7: Tue 12 Sep 2017 12:50:58 AEST
+# Added hive

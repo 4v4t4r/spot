@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.1.6
+# Version:      0.1.7
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -85,6 +85,40 @@ if [ "$HBASE_VER" = "" ]; then
   HADOOP_DIR="hadoop-$HADOOP_VER"
 fi
 
+# Setup Hive defaults
+
+if [ "$HIVE_VER" = "" ]; then
+  HIVE_VER="2.3.0"
+  HIVE_TAR="apache-hive-$HIVE_VER-bin.tar.gz"
+  HIVE_URL="http://ftp.mirror.aarnet.edu.au/pub/hive/hive-$HIVE_VER/$HIVE_TAR"
+  HIVE_DIR="hive-$HIVE_VER"
+fi
+
+# Setup pyenv defaults
+
+if [ "$PYENV_DIR" = "" ]; then
+  PYENV_DIR="$USER_HOME/.pyenv"
+fi
+
+if [ "$PYTHON2_VER" = "" ]; then
+  PYTHON2_VER="2.7.13"
+fi
+
+if [ "$PYTHON3_VER" = "" ]; then
+  PYTHON3_VER="3.6.2"
+fi
+
+if [ "$SCALA_VER" = "" ]; then
+  SCALA_VER="2.12.3"
+  if [ -f "/etc/redhat-release" ]; then
+    SCALA_PKG="scala-$SCALA_VER.rpm"
+    SCALA_URL="https://downloads.lightbend.com/scala/$SCALA_VER/$SCALA_PKG"
+  else
+    SCALA_PKG="scala-$SCALA_VER.deb"
+    SCALA_URL="https://downloads.lightbend.com/scala/$SCALA_VER/$SCALA_PKG"
+  fi
+fi
+
 # Set up user information (user created for Big Data programs)
 
 if [ "$USER_NAME" = "" ]; then
@@ -117,29 +151,6 @@ fi
 
 if [ "$USER_TAR" = "" ]; then
   USER_TAR="/mnt/VMs/Asad/user_snapshot_rs_290817.tar.bz2"
-fi
-
-if [ "$PYENV_DIR" = "" ]; then
-  PYENV_DIR="$USER_HOME/.pyenv"
-fi
-
-if [ "$PYTHON2_VER" = "" ]; then
-  PYTHON2_VER="2.7.13"
-fi
-
-if [ "$PYTHON3_VER" = "" ]; then
-  PYTHON3_VER="3.6.2"
-fi
-
-if [ "$SCALA_VER" = "" ]; then
-  SCALA_VER="2.12.3"
-  if [ -f "/etc/redhat-release" ]; then
-    SCALA_PKG="scala-$SCALA_VER.rpm"
-    SCALA_URL="https://downloads.lightbend.com/scala/$SCALA_VER/$SCALA_PKG"
-  else
-    SCALA_PKG="scala-$SCALA_VER.deb"
-    SCALA_URL="https://downloads.lightbend.com/scala/$SCALA_VER/$SCALA_PKG"
-  fi
 fi
 
 # Set up package installer
@@ -203,6 +214,19 @@ install_vbox_tools () {
 install_vm_tools () {
   install_vmware_tools
   install_vbox_tools
+}
+
+# Function to install hive
+
+install_hive () {
+  if [ ! -d "$USER_HOME/$HIVE_DIR" ]; then
+    cd $TMP_DIR
+    if [ ! -f "$HIVE_TAR" ]; then
+      wget -O $HIVE_TAR $HIVE_URL
+    fi
+    $TAR_BIN -xpf $HIVE_TAR
+    mv apache-hive-$HIVE_VER-bin $USER_HOME/$HIVE_DIR
+  fi
 }
 
 # Function to install scala
@@ -461,7 +485,7 @@ full_install () {
 
 print_usage () {
   echo ""
-  echo "Usage $0 -[B|C|D|E|H|L|X|M|O|Q|R|S|T|F|U|Y|K|h|v] -[f|u|g|t]: -[Z]"
+  echo "Usage $0 -[B|C|D|E|H|G|L|X|M|O|Q|R|S|T|F|U|Y|K|h|v] -[f|u|g|t]: -[Z]"
   echo ""
   echo "-h: Print usage information"
   echo "-T: Install from preconfigured tar file"
@@ -474,6 +498,7 @@ print_usage () {
   echo "-S: Install Spark"
   echo "-E: Install Hadoop"
   echo "-H: Install HBase"
+  echo "-G: Install Hive"
   echo "-X: Install VMware Tools"
   echo "-K: Install pyenv"
   echo "-L: Install Lightning-viz"
@@ -512,8 +537,9 @@ do_scala=0
 do_sbt=0
 do_maven=0
 do_lightning=0
+do_hive=0
 
-while getopts BCDEHLXMOQRSTFUYKhf:u:g: args; do
+while getopts BCDEHGLXMOQRSTFUYKhf:u:g: args; do
   case $args in
   Z)
     exclude_base=1
@@ -559,6 +585,10 @@ while getopts BCDEHLXMOQRSTFUYKhf:u:g: args; do
   M)
     do_base=1
     do_maven=1
+    ;;
+  G)
+    do_base=1
+    do_hive=1
     ;;
   D)
     do_base=1
@@ -635,8 +665,13 @@ fi
 if [ ! -d "$USER_HOME" ]; then
   add_user $USER_NAME
 else
-  if [ "$do_user" = 1 ]; then
+  user_test=`id $USER_NAME |grep -v "no such"`
+  if [ ! "$user_test" ]; then
     add_user $USER_NAME
+  else
+    if [ "$do_user" = 1 ]; then
+      add_user $USER_NAME
+    fi
   fi
 fi
 
@@ -694,6 +729,10 @@ fi
 
 if [ "$do_maven" = 1 ]; then
   install_maven
+fi
+
+if [ "$do_hive" = 1 ]; then
+  install_hive
 fi
 
 if [ "do_lightning" = 1 ]; then
