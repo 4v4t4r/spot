@@ -242,7 +242,9 @@ install_hive () {
       wget -O $HIVE_TAR $HIVE_URL
     fi
     $TAR_BIN -xpf $HIVE_TAR
-    mv apache-hive-$HIVE_VER-bin $USER_HOME/$HIVE_DIR
+    if [ -d "apache-hive-$HIVE_VER-bin" ]; then
+      mv apache-hive-$HIVE_VER-bin $USER_HOME/$HIVE_DIR
+    fi
   fi
 }
 
