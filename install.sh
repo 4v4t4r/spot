@@ -195,7 +195,7 @@ install_sbt () {
 # Function to clean up user home permissions
 
 clean_up_user_perms () {
-  sudo add_user $USER_NAME
+  add_user $USER_NAME
   sudo chown -R $USER_NAME:$USER_NAME $USER_HOME
 }
 
