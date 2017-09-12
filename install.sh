@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.2.0
+# Version:      0.2.1
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -446,6 +446,12 @@ install_hadoop () {
 
 install_opencv () {
   cd $TMP_DIR
+  if [ -f "/etc/redhat-release" ]; then
+    sudo yum install cmake git libgtk2.0-dev pkg-config libavcodec-devel libavformat-devel libswsåcale-devel -y
+  else
+    sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev -y
+    sudo apt-get install libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev -y
+  fi
   if [ ! -f "$OPENCV_TAR" ]; then
     echo "Downloading $OPENCV_URL to $TMP_DIR/$OPENCV_TAR"
     wget -O $OPENCV_TAR $OPENCV_URL
@@ -463,7 +469,7 @@ install_opencv () {
         tar -xvf $OPENCV_CONTRIB_TAR
       fi
       cd $OPENCV_DIR
-      cmake -DWITH_GPHOTO2=OFF -DCMAKE_INSTALL_PREFIX=/usr/local -DOPENCV_EXTRA_MODULES_PATH=../$OPENCV_CONTRIB_DIR/modules
+      cmake -DWITH_IPP=ON -DWITH_GPHOTO2=OFF -DCMAKE_INSTALL_PREFIX=/usr/local -DOPENCV_EXTRA_MODULES_PATH=../$OPENCV_CONTRIB_DIR/modules
       if [ -f "/etc/redhat-release" ]; then
         cp $SRC_DIR/jas_math.h /usr/include/jasper/jas_math.h
       else
