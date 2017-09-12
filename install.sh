@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.1.9
+# Version:      0.2.0
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -182,11 +182,15 @@ fi
 
 install_sbt () {
   if [ -f "/etc/redhat-release" ]; then
-    curl https://bintray.com/sbt/rpm/rpm | sudo tee /etc/yum.repos.d/bintray-sbt-rpm.repo
+    if ! [ -f "/etc/yum.repos.d/bintray-sbt-rpm.repo" ]; then
+      curl https://bintray.com/sbt/rpm/rpm | sudo tee /etc/yum.repos.d/bintray-sbt-rpm.repo
+    fi
     sudo yum install sbt -y
   else
     echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
-    sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
+    if [ ! -f "/etc/apt/sources.list.d/sbt.list" ]; then
+      sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
+    fi
     sudo apt-get update
     sudo apt-get install sbt -y
   fi

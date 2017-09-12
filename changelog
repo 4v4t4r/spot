@@ -36,3 +36,5 @@
 # Fixed base check
 # 0.1.9: Tue Sep 12 03:21:56 UTC 2017
 # Improved bsdtar check
+# 0.2.0: Tue 12 Sep 2017 13:41:32 AEST
+# Improved SBT check
