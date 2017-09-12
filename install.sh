@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.1.5
+# Version:      0.1.6
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -267,8 +267,11 @@ install_pyenv () {
 # Function to install lighting
 
 install_lightning () {
-  $PKG_BIN install npm -y
-  npm install -g lighting-server
+  if [ ! -f "/.dockerenv" ]; then
+    $PKG_BIN install docker -y
+    $PKG_BIN install npm -y
+    npm install -g lighting-server
+  fi
 }
 
 # Function to check we have base packages installed
@@ -289,7 +292,7 @@ check_base () {
     for package in unzip sudo cmake wget epel-release bsdtar3 bzip2 java-1.8.0-openjdk gcc-c++ gtk2-devel tesseract-devel \
                    yum-utils libavformat-* libtiff-devel libjpeg-devel hdf5-devel python-pip numpy libgphoto2-devel \
                    libdc1394-devel libv4l-devel gstreamer-plugins-base-devel libpng-devel libjpeg-turbo-devel jasper-devel \
-                   openexr-devel libtiff-devel libwebp-devel fann-devel dmidecode docker; do
+                   openexr-devel libtiff-devel libwebp-devel fann-devel dmidecode; do
       sudo yum install $package -y
     done
     sudo pip install --upgrade pip
@@ -308,7 +311,7 @@ check_base () {
     for package in vim unzip sudo cmake wget bzip2 bsdtar default-jre g++ opencl-1.2 python3 python3-dev libtesseract-dev \
                    libavformat-* libtiff-dev libjpeg-dev libhdf5-dev python-pip libgphoto2-dev python-numpy libgphoto2-dev \
                    libdc1394-22-dev libv4l-dev gstreamer-plugins-base1.0-dev libpng-dev libjpeg-turbo8-dev libjasper-dev \
-                   libopenexr-dev libtiff-dev libwebp-dev joda-time* libfann-dev dmidecode apt-transport-https docker; do
+                   libopenexr-dev libtiff-dev libwebp-dev joda-time* libfann-dev dmidecode apt-transport-https; do
       sudo apt-get install $package -y
     done
     update-alternatives --config java

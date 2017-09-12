@@ -28,3 +28,5 @@
 # Added code to install sbt
 # 0.1.5: Tue 12 Sep 2017 12:14:13 AEST
 # Added lightning-viz and maven
+# 0.1.6: Tue 12 Sep 2017 12:26:19 AEST
+# Added docker check for lightning-viz
