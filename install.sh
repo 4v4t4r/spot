@@ -372,14 +372,14 @@ install_openvpn () {
     if [ ! -d "$rsa_dir/keys" ]; then
       cd $rsa_dir ; . ./vars ; ./clean-all
       cd $rsa_dir ; ./build-ca <<-KEY_DATA
-        $(KEY_COUNTRY)
-        $(KEY_PROVIMCE)
-        $(KEY_CITY)
-        $(KEY_ORG)
-        $(KEY_OU)
-        $(KEY_HOST)
-        $(KEY_NAME)
-        $(KEY_EMAIL)
+        echo $KEY_COUNTRY
+        echo $KEY_PROVIMCE
+        echo $KEY_CITY
+        echo $KEY_ORG
+        echo $KEY_OU
+        echo $KEY_HOST
+        echo $KEY_NAME
+        echo $KEY_EMAIL
 KEY_DATA
     fi
   fi
