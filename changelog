@@ -42,3 +42,5 @@
 # Updated OpenCV compilation
 # 0.2.2: Tue 12 Sep 2017 15:41:21 AEST
 # Fixes for darknet
+# 0.2.3: Thu 14 Sep 2017 12:02:44 AEST
+# Added initial OpenVPN install support

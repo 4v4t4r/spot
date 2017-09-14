@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.2.2
+# Version:      0.2.3
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -151,6 +151,32 @@ fi
 
 if [ "$USER_TAR" = "" ]; then
   USER_TAR="/mnt/VMs/Asad/user_snapshot_rs_290817.tar.bz2"
+fi
+
+# Set up data for certificates
+
+if [ "$KEY_COUNTRY" = "" ]; then
+  KEY_COUNTRY="AU"
+fi
+
+if [ "$KEY_PROVINCE" = "" ]; then
+  KEY_PROVINCE="Victoria"
+fi
+
+if [ "$KEY_CITY" = "" ]; then
+  KEY_CITY="Melbourne"
+fi
+
+if [ "$KEY_ORG" = "" ]; then
+  KEY_ORG="Research"
+fi
+
+if [ "$KEY_EMAIL" = "" ]; then
+  KEY_EMAIL="user@localhost"
+fi
+
+if [ "$KEY_OU" = "" ]; then
+  KEY_OU="Data"
 fi
 
 # Set up package installer
@@ -318,6 +344,31 @@ install_lightning () {
     $PKG_BIN install docker -y
     $PKG_BIN install npm -y
     sudo npm install -g lighting-server
+  fi
+}
+
+# Function to install OpenVPN
+
+install_openvpn () {
+  $PKG_BIN install openvpn easy-rsa
+  if [ -f "/etc/redhat-release" ]; then
+    rsa_dir="/usr/share/easy-rsa/2.0"
+  else
+    rsa_dir="/usr/share/easy-rsa"
+  fi
+  if [ -d "$rsa_dir" ]; then
+    if [ ! -d "$rsa_dir/keys" ]; then
+      . ./vars
+      ./clean-all
+      ./build_ca <<-KEY_DATA
+        $KEY_COUNTRY
+        $KEY_PROVIMCE
+        $KEY_CITY
+        $KEY_ORG
+        $KEY_EMAIL
+        $KEY_OU
+KEY_DATA
+    fi
   fi
 }
 
@@ -510,7 +561,7 @@ full_install () {
 
 print_usage () {
   echo ""
-  echo "Usage $0 -[B|C|D|E|H|G|L|X|M|O|Q|R|S|T|F|U|Y|K|h|v] -[f|u|g|t]: -[Z]"
+  echo "Usage $0 -[B|C|D|E|H|G|L|X|M|N|O|Q|R|S|T|F|U|Y|K|h|v] -[f|u|g|t]: -[Z]"
   echo ""
   echo "-h: Print usage information"
   echo "-T: Install from preconfigured tar file"
@@ -528,6 +579,7 @@ print_usage () {
   echo "-K: Install pyenv"
   echo "-L: Install Lightning-viz"
   echo "-M: Install Maven"
+  echo "-N: Install OpenVPN"
   echo "-Q: Install Scala"
   echo "-R: Install SBT"
   echo "-O: Install VirtualBox Guest Additions"
@@ -562,8 +614,9 @@ do_sbt=0
 do_maven=0
 do_lightning=0
 do_hive=0
+do_openvpn=0
 
-while getopts BCDEHGLXMOQRSTFUYZKhf:u:g: args; do
+while getopts BCDEHGLXMNOQRSTFUYZKhf:u:g: args; do
   case $args in
   Z)
     do_base=0
@@ -605,6 +658,9 @@ while getopts BCDEHGLXMOQRSTFUYZKhf:u:g: args; do
     ;;
   M)
     do_maven=1
+    ;;
+  N)
+    do_openvpn=1
     ;;
   G)
     do_hive=1
@@ -743,6 +799,10 @@ fi
 
 if [ "do_lightning" = 1 ]; then
   install_lightning
+fi
+
+if [ "$do_openvpn" = 1 ]; then
+  install_openvpn
 fi
 
 if [ "$do_tar" = 1 ]; then
