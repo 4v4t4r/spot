@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.2.4
+# Version:      0.2.5
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -164,31 +164,51 @@ fi
 # Set up data for certificates
 
 if [ "$KEY_COUNTRY" = "" ]; then
-  KEY_COUNTRY="AU"
+  export KEY_COUNTRY="AU"
 fi
 
 if [ "$KEY_PROVINCE" = "" ]; then
-  KEY_PROVINCE="Victoria"
+  export KEY_PROVINCE="Victoria"
 fi
 
 if [ "$KEY_CITY" = "" ]; then
-  KEY_CITY="Melbourne"
+  export KEY_CITY="Melbourne"
 fi
 
 if [ "$KEY_ORG" = "" ]; then
-  KEY_ORG="Research"
+  export KEY_ORG="Research"
 fi
 
 if [ "$KEY_EMAIL" = "" ]; then
-  KEY_EMAIL="$USER_EMAIL"
+  export KEY_EMAIL="$USER_EMAIL"
 fi
 
 if [ "$KEY_HOST" = "" ]; then
-  KEY_HOST="$USER_HOST"
+  export KEY_HOST="$USER_HOST"
 fi
 
 if [ "$KEY_OU" = "" ]; then
-  KEY_OU="Data"
+  export KEY_OU="Data"
+fi
+
+if [ "$KEY_CLIENTS" = "" ]; then
+  export KEY_CLIENTS=""
+fi
+
+if [ "$KEY_PASSWORD" = "" ]; then
+  export KEY_PASSWORD=""
+fi
+
+if [ "$KEY_COMPANY" = "" ]; then
+  export KEY_COMPANY=""
+fi
+
+if [ "$KEY_SIGN" = "" ]; then
+  export KEY_SIGN="y"
+fi
+
+if [ "$KEY_COMMIT" = "" ]; then
+  export KEY_COMMIT="y"
 fi
 
 # Set up package installer
@@ -381,6 +401,37 @@ install_openvpn () {
         echo $KEY_NAME
         echo $KEY_EMAIL
 KEY_DATA
+      cd $rsa_dir ; ./pkitool --initca
+      cd $rsa_dir ; ./build-key-server $USER_HOST <<-KEY_DATA
+        echo $KEY_COUNTRY
+        echo $KEY_PROVIMCE
+        echo $KEY_CITY
+        echo $KEY_ORG
+        echo $KEY_OU
+        echo $KEY_HOST
+        echo $KEY_NAME
+        echo $KEY_EMAIL
+        echo $KEY_PASSWORD
+        echo $KEY_COMPANY
+        echo $KEY_SIGN
+        echo $KEY_COMMIT
+KEY_DATA
+      for client in `echo $KEY_CLIENTS`; do
+        cd $rsa_dir ; ./build-key $client <<-KEY_DATA
+          echo $KEY_COUNTRY
+          echo $KEY_PROVIMCE
+          echo $KEY_CITY
+          echo $KEY_ORG
+          echo $KEY_OU
+          echo $KEY_HOST
+          echo $KEY_NAME
+          echo $KEY_EMAIL
+          echo $KEY_PASSWORD
+          echo $KEY_COMPANY
+          echo $KEY_SIGN
+          echo $KEY_COMMIT
+KEY_DATA
+      done
     fi
   fi
 }
