@@ -39,6 +39,7 @@ Usage ./install.sh -[B|C|D|E|H|X|O|S|T|F|U|Y|K|h] -[f|u|g|t]: -[Z]
 -K: Install pyenv
 -L: Install Lightning-viz
 -M: Install Maven
+-N: Install OpenVPN
 -Q: Install Scala
 -R: Install SBT
 -O: Install VirtualBox Guest Additions

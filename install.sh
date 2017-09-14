@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name:         spot
-# Version:      0.2.3
+# Version:      0.2.4
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -125,6 +125,14 @@ if [ "$USER_NAME" = "" ]; then
   USER_NAME="user"
 fi
 
+if [ "$USER_HOST" = "" ]; then
+  USER_HOST="bigvm"
+fi
+
+if [ "$USER_EMAIL" = "" ]; then
+  USER_EMAIL="user@localhost"
+fi
+
 if [ "$USER_GROUP" = "" ]; then
   USER_GROUP=$USER_NAME
 fi
@@ -172,7 +180,11 @@ if [ "$KEY_ORG" = "" ]; then
 fi
 
 if [ "$KEY_EMAIL" = "" ]; then
-  KEY_EMAIL="user@localhost"
+  KEY_EMAIL="$USER_EMAIL"
+fi
+
+if [ "$KEY_HOST" = "" ]; then
+  KEY_HOST="$USER_HOST"
 fi
 
 if [ "$KEY_OU" = "" ]; then
@@ -358,15 +370,16 @@ install_openvpn () {
   fi
   if [ -d "$rsa_dir" ]; then
     if [ ! -d "$rsa_dir/keys" ]; then
-      . ./vars
-      ./clean-all
-      ./build_ca <<-KEY_DATA
+      cd $rsa_dir ; . ./vars ; ./clean-all
+      cd $rsa_dir ; ./build_ca <<-KEY_DATA
         $KEY_COUNTRY
         $KEY_PROVIMCE
         $KEY_CITY
         $KEY_ORG
-        $KEY_EMAIL
         $KEY_OU
+        $KEY_HOST
+        $KEY_NAME
+        $KEY_EMAIL
 KEY_DATA
     fi
   fi

@@ -44,3 +44,5 @@
 # Fixes for darknet
 # 0.2.3: Thu 14 Sep 2017 12:02:44 AEST
 # Added initial OpenVPN install support
+# 0.2.4: Thu 14 Sep 2017 12:27:36 AEST
+# OpenVPN updates
